@@ -59,7 +59,7 @@ python-dotenv   # if using .env files
 
 ### 4. Prepare the dataset
 
-Place your appraisal JSON (`appraisals.json`) at the repository root. It should follow the structure:
+Place your appraisal JSON (`appraisals_dataset.json`) at the repository root. It should follow the structure:
 
 ```json
 {
