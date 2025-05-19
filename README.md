@@ -13,7 +13,7 @@ This repository contains a **Comparable Property Recommendation System** that:
 * **Explainability**:
 
   * **SHAP** to extract top feature drivers per recommended comp.
-  * **LLM Integration** (optional): uses GPT (gpt-4/turbo) to convert bullet-point SHAP insights into natural language.
+  * **LLM Integration**: uses GPT (gpt-4.1) to convert bullet-point SHAP insights into natural language.
 
 ## 💡 Getting Started
 
