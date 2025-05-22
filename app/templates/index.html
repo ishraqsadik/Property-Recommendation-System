@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='/css/styles.css') }}">
+</head>
+<body>
+  <header>
+    <nav class="container">
+      <div class="logo">Property Recommendation System</div>
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/dashboard">Dashboard</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="container main-content">
+    <!-- Alert container -->
+    <div id="alert-container"></div>
+
+    <!-- Property Search Form - Simplified -->
+    <section class="search-section">
+      <h2 class="section-title">Test Property Recommendations</h2>
+      
+      <div class="stats-summary">
+        <p>Model stats: <span id="model-stats">Loading...</span></p>
+      </div>
+      
+      <form id="property-form" class="simple-form">
+        <!-- Test Property Selection -->
+        <div class="form-group">
+          <label for="test_property_select">Select a Test Property</label>
+          <select class="form-control" id="test_property_select">
+            <option value="">Loading test properties...</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Get Recommendations</button>
+      </form>
+    </section>
+
+    <!-- Loader -->
+    <div id="loader" class="loader">
+      <div class="loader-spinner"></div>
+      <p>Loading recommendations...</p>
+    </div>
+
+    <!-- Subject Property Display -->
+    <section class="properties-section" style="margin-bottom: 2rem;">
+      <h2 class="section-title">Subject Property</h2>
+      <div id="subject-property-container" class="property-grid"></div>
+    </section>
+
+    <!-- Recommended Properties -->
+    <section class="properties-section">
+      <h2 class="section-title">Recommended Properties</h2>
+      <div id="recommendation-container" class="property-grid"></div>
+    </section>
+
+    <!-- Feedback Section (hidden initially) -->
+    <section class="feedback-section" id="feedback-section" style="display: none;">
+      <h2 class="section-title">Provide Feedback</h2>
+      <p>Please rate the recommendations and provide any comments:</p>
+
+      <div class="form-group">
+        <label for="feedback-comments">Comments</label>
+        <textarea class="form-control" id="feedback-comments" rows="3" placeholder="Enter any comments or suggestions"></textarea>
+      </div>
+
+      <div class="feedback-actions">
+        <div class="rating-buttons">
+          <button id="approve-button" class="btn btn-success">Approve Recommendations</button>
+          <button id="reject-button" class="btn btn-danger">Reject & Select Better Alternatives</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Property Recommendation System</p>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', path='/js/main.js') }}"></script>
+</body>
+</html> 

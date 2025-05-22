@@ -1,0 +1,17 @@
+# Python virtual environment
+venv/
+env/
+ENV/
+.env/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Local development settings
+.env
+*.log
+
