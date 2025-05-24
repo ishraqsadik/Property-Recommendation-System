@@ -198,7 +198,6 @@ class PropertyRecommendationApp:
             
             # Debug: Show model test property IDs info
             if hasattr(model, 'test_property_ids') and model.test_property_ids:
-                st.write(f"Model has {len(model.test_property_ids)} test property IDs")
                 # Find matching test subjects
                 test_subjects = []
                 
@@ -208,13 +207,9 @@ class PropertyRecommendationApp:
                     if any(str(prop_id) in model.test_property_ids for prop_id in order_props['id'].astype(str)):
                         test_subjects.append(order_id)
                 
-                if test_subjects:
-                    st.write(f"Found {len(test_subjects)} test subjects from model test IDs")
-                else:
-                    st.write("No test subjects found matching model test IDs. Using all subjects.")
+                if not test_subjects:
                     test_subjects = subjects_df['order_id'].unique()[:limit]
             else:
-                st.write("No test property IDs found in model. Using sample subjects.")
                 test_subjects = subjects_df['order_id'].unique()[:limit]
             
             # Get subject properties
@@ -228,7 +223,6 @@ class PropertyRecommendationApp:
                     formatted_prop['id'] = order_id  # Use order_id as id
                     subjects.append(formatted_prop)
             
-            st.write(f"Returning {len(subjects)} test subjects for selection")
             return subjects
             
         except Exception as e:
