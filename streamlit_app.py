@@ -228,11 +228,6 @@ class PropertyRecommendationApp:
         except Exception as e:
             st.error(f"Error getting test subjects: {str(e)}")
             st.exception(e)
-            # Debug: Show what data we have
-            st.write(f"Debug info:")
-            st.write(f"- subjects_df is None: {st.session_state.get('subjects_df') is None}")
-            st.write(f"- properties_df is None: {st.session_state.get('properties_df') is None}")
-            st.write(f"- model is None: {st.session_state.get('model') is None}")
             return []
     
     def get_property_recommendations(self, subject_property_dict):
@@ -256,7 +251,6 @@ class PropertyRecommendationApp:
                 ]
             
             if order_properties.empty:
-                st.warning(f"No candidates found for order_id {order_id}. Using all properties as fallback.")
                 order_properties = properties_df.copy()
             
             # Get comp data for this order
@@ -776,14 +770,6 @@ class PropertyRecommendationApp:
             
             # System status display
             if st.session_state.model_loaded:
-                st.write("Model Ready")
-                st.write("Data Loaded")
-                
-                # Show system info
-                model = st.session_state.get('model')
-                if model and hasattr(model, 'test_property_ids'):
-                    st.write(f"📋 {len(model.test_property_ids)} test properties available")
-                
                 # Manual reload option (advanced users)
                 with st.expander("🔧 Advanced Options"):
                     if st.button("🔄 Reload System"):
@@ -849,9 +835,9 @@ class PropertyRecommendationApp:
                     """)
                     st.warning("⚠️ Enhanced AI explanations require an OpenAI API key")
                 else:
-                    st.write("✅ OpenAI API Key entered!")
+                    st.success("✅ OpenAI API Key entered!")
             else:
-                st.write("✅ OpenAI API Key found in environment")
+                st.success("✅ OpenAI API Key found in environment")
             
             # Check OpenAI status
             current_openai_key = st.session_state.user_openai_key or env_openai_key
@@ -860,25 +846,12 @@ class PropertyRecommendationApp:
                 if len(current_openai_key) > 20 and current_openai_key.startswith('sk-'):
                     masked_key = f"{current_openai_key[:10]}...{current_openai_key[-4:]}"
                     st.caption(f"🔑 Key: {masked_key}")
-                
-                # Check if explainer has OpenAI client
-                explainer = st.session_state.get('explainer')
-                if explainer and hasattr(explainer, 'openai_client') and explainer.openai_client:
-                    st.write("✅ Enhanced Explanations Ready")
-                else:
-                    st.write("⚠️ Explainer needs refresh - restart app if issues persist")
-                    
-            else:
-                st.write("❌ No OpenAI API Key")
-                st.caption("Enhanced AI explanations unavailable")
             
             # Feedback system status
             st.markdown("---")
             st.markdown("### 🎯 Self-Learning System")
             feedback_system = st.session_state.get('feedback_system')
             if feedback_system:
-                st.write("✅ Feedback Learning Active")
-                
                 # Show quick stats
                 feedback_stats = st.session_state.get('feedback_stats')
                 if feedback_stats:
@@ -886,8 +859,6 @@ class PropertyRecommendationApp:
                     approval_rate = feedback_stats.get('approval_rate', 0) * 100
                     st.caption(f"📊 {total} feedback entries")
                     st.caption(f"👍 {approval_rate:.0f}% approval rate")
-            else:
-                st.write("⚠️ Feedback System Not Ready")
         
         # Main content
         if not st.session_state.model_loaded:
