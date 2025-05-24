@@ -329,11 +329,14 @@ class PropertyRecommendationApp:
         with st.container():
             st.markdown('<div class="property-card subject-property">', unsafe_allow_html=True)
             
+            # Large, bold property address
+            address = subject_dict.get('address', 'Address Not Available')
+            st.markdown(f"### **{address}**")
+            
             col1, col2, col3 = st.columns(3)
             
             with col1:
                 st.markdown("**Property Details**")
-                st.write(f"**Address:** {subject_dict.get('address', 'N/A')}")
                 st.write(f"**City:** {subject_dict.get('city', 'N/A')}")
                 st.write(f"**Order ID:** {subject_dict.get('order_id', 'N/A')}")
             
@@ -389,11 +392,14 @@ class PropertyRecommendationApp:
             ):
                 st.markdown(f'<div class="{card_class}">', unsafe_allow_html=True)
                 
+                # Large, bold property address
+                address = property_data.get('address', 'Address Not Available')
+                st.markdown(f"### **{address}**")
+                
                 col1, col2, col3 = st.columns([2, 2, 1])
                 
                 with col1:
                     st.markdown("**Property Details**")
-                    st.write(f"**Address:** {property_data.get('address', 'N/A')}")
                     st.write(f"**City:** {property_data.get('city', 'N/A')}")
                     st.write(f"**Price:** ${property_data.get('sale_price', 0):,.0f}")
                     st.write(f"**GLA:** {property_data.get('gla', 'N/A')} sq ft")

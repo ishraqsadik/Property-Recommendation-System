@@ -192,11 +192,3 @@ Key features used for property matching:
 ## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🙏 Acknowledgments
-
-- **SHAP**: For explainable AI capabilities
-- **Streamlit**: For the excellent web framework
-- **XGBoost**: For high-performance machine learning
-- **OpenAI**: For enhanced natural language explanations
-- **Plotly**: For interactive visualizations
