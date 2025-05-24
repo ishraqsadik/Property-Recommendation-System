@@ -4,6 +4,8 @@
 
 An intelligent property recommendation system designed for real estate appraisers, featuring self-learning capabilities through user feedback and comprehensive AI explainability.
 
+**🚀 Try the Live App: [https://compfinder.streamlit.app/](https://compfinder.streamlit.app/)**
+
 ## ✨ Key Features
 
 ### 🎯 Core Functionality
@@ -33,25 +35,38 @@ An intelligent property recommendation system designed for real estate appraiser
 - **Visualization**: Plotly for interactive charts
 - **Data Processing**: Pandas for efficient data manipulation
 
-## 🚀 Quick Start
+## 🚀 Getting Started
 
-### 1. Prerequisites
+### Option 1: Use the Deployed App (Recommended)
 
+**Visit: [https://compfinder.streamlit.app/](https://compfinder.streamlit.app/)**
+
+- ✅ No installation required
+- ✅ Always up-to-date
+- ✅ Ready to use immediately
+- 🔑 Optional: Add your OpenAI API key in the sidebar for enhanced explanations
+
+### Option 2: Run Locally
+
+#### Prerequisites
 - Python 3.8+
 - OpenAI API Key (optional, for enhanced explanations)
 
-### 2. Installation
+#### Installation
 
 ```bash
 # Clone the repository
-git clone <repository-url>
-cd property-recommendation-system
+git clone https://github.com/ishraqsadik/Property-Recommendation-System.git
+cd Property-Recommendation-System
 
 # Install dependencies
 pip install -r requirements.txt
+
+# Run the application
+streamlit run streamlit_app.py
 ```
 
-### 3. Configuration (Optional)
+#### Configuration (Optional)
 
 ```bash
 # Set OpenAI API key for enhanced explanations
@@ -60,16 +75,6 @@ export OPENAI_API_KEY=your_api_key_here
 # Or create a .env file
 echo "OPENAI_API_KEY=your_api_key_here" > .env
 ```
-
-### 4. Run the Application
-
-```bash
-streamlit run streamlit_app.py
-```
-
-### 5. Access the App
-
-Open your browser to `http://localhost:8501`
 
 ## 📦 Project Structure
 
@@ -93,12 +98,10 @@ property-recommendation-system/
 └── requirements.txt               # Python dependencies
 ```
 
-## �� How to Use
+## 📋 How to Use
 
-### 1. Launch the Application
-```bash
-streamlit run streamlit_app.py
-```
+### 1. Access the Application
+**Visit: [https://compfinder.streamlit.app/](https://compfinder.streamlit.app/)**
 - System automatically initializes when you open the app
 - Model, data, and AI components load seamlessly in the background
 - No manual setup required!
@@ -132,24 +135,37 @@ streamlit run streamlit_app.py
 
 ## 🔧 Advanced Configuration
 
-### Environment Variables
+### OpenAI API Key Setup
+
+For enhanced AI explanations, you can provide your OpenAI API key:
+
+**In the Deployed App:**
+- Visit [https://compfinder.streamlit.app/](https://compfinder.streamlit.app/)
+- Look for "OpenAI API Key Setup" in the sidebar
+- Enter your API key securely (stored only in your session)
+
+**For Local Development:**
 
 ```bash
-# OpenAI Integration (Optional)
-OPENAI_API_KEY=your_api_key_here
+# Environment Variable
+export OPENAI_API_KEY=your_api_key_here
+
+# Or .env file  
+echo "OPENAI_API_KEY=your_api_key_here" > .env
 ```
 
 ### Custom Model Training
 
 The system can retrain automatically or manually:
 
+**Via Web Interface:**
+- Navigate to "Manual Model Retraining" section in the app
+- Click "🚀 Retrain Model Now"
+
+**Local Development:**
 ```bash
 # Force retrain with existing feedback
 python force_retrain.py
-
-# Or use the Streamlit interface:
-# - Navigate to "Manual Model Retraining" section
-# - Click "🚀 Retrain Model Now"
 ```
 
 ## 🔬 Model & Data Science
