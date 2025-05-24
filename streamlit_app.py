@@ -125,6 +125,9 @@ class PropertyRecommendationApp:
         # Track loading state
         if 'loading_error' not in st.session_state:
             st.session_state.loading_error = None
+        # Add custom form state
+        if 'show_custom_form' not in st.session_state:
+            st.session_state.show_custom_form = False
     
     def auto_load_on_startup(self):
         """Automatically load model and data when app starts"""
@@ -187,16 +190,11 @@ class PropertyRecommendationApp:
             properties_df = st.session_state.get('properties_df')
             model = st.session_state.get('model')
             
-            # Debug: Check if data is loaded
-            if subjects_df is None:
-                st.error("Subjects data is None. Please reload the model and data.")
+            # Check if data is loaded
+            if subjects_df is None or subjects_df.empty:
                 return []
             
-            if subjects_df.empty:
-                st.error("Subjects data is empty. Please check your data file.")
-                return []
-            
-            # Debug: Show model test property IDs info
+            # Find matching test subjects based on model test property IDs
             if hasattr(model, 'test_property_ids') and model.test_property_ids:
                 # Find matching test subjects
                 test_subjects = []
@@ -226,8 +224,6 @@ class PropertyRecommendationApp:
             return subjects
             
         except Exception as e:
-            st.error(f"Error getting test subjects: {str(e)}")
-            st.exception(e)
             return []
     
     def get_property_recommendations(self, subject_property_dict):
@@ -893,7 +889,74 @@ class PropertyRecommendationApp:
             index=0 if subject_options else None
         )
         
-        if selected_display and st.button("🔍 Get Recommendations", type="primary"):
+        # Button for custom property entry
+        st.markdown("---")
+        if st.button("📝 Enter New Test Property", type="secondary"):
+            st.session_state.show_custom_form = True
+        
+        # Custom property form
+        if st.session_state.get('show_custom_form', False):
+            st.subheader("📝 Enter Custom Property Details")
+            
+            with st.form("custom_property_form"):
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    st.markdown("**Property Details**")
+                    custom_address = st.text_input("Address*", placeholder="123 Main St")
+                    custom_city = st.text_input("City*", placeholder="Tampa")
+                    custom_gla = st.number_input("GLA (sq ft)*", min_value=500, max_value=10000, value=1500, step=50)
+                    custom_bedrooms = st.number_input("Bedrooms*", min_value=1, max_value=10, value=3)
+                    custom_age = st.number_input("Age (years)*", min_value=0, max_value=100, value=10)
+                
+                with col2:
+                    st.markdown("**Property Features**")
+                    custom_structure = st.selectbox("Structure Type", 
+                        ["Single Family Detached", "Townhouse", "Condominium", "Semi-Detached", "Other"])
+                    custom_stories = st.number_input("Stories", min_value=1, max_value=4, value=1)
+                    custom_full_baths = st.number_input("Full Bathrooms", min_value=1, max_value=10, value=2)
+                    custom_half_baths = st.number_input("Half Bathrooms", min_value=0, max_value=5, value=0)
+                    custom_room_count = st.number_input("Total Rooms", min_value=3, max_value=20, value=7)
+                
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    submit_custom = st.form_submit_button("🔍 Get Recommendations", type="primary")
+                with col2:
+                    cancel_custom = st.form_submit_button("❌ Cancel")
+                
+                if submit_custom:
+                    if custom_address and custom_city and custom_gla:
+                        # Create custom property dict
+                        custom_property = {
+                            'address': custom_address,
+                            'city': custom_city,
+                            'gla': custom_gla,
+                            'bedrooms': custom_bedrooms,
+                            'age': custom_age,
+                            'structure_type': custom_structure,
+                            'stories': custom_stories,
+                            'full_baths': custom_full_baths,
+                            'half_baths': custom_half_baths,
+                            'room_count': custom_room_count,
+                            'order_id': f"custom_{hash(custom_address)}",  # Generate unique ID
+                            'id': f"custom_{hash(custom_address)}"
+                        }
+                        
+                        with st.spinner("🔍 Analyzing your custom property and generating recommendations..."):
+                            recommendations = self.get_property_recommendations(custom_property)
+                            st.session_state.selected_subject = custom_property
+                            st.session_state.recommendations = recommendations
+                            st.session_state.show_custom_form = False
+                            st.rerun()
+                    else:
+                        st.error("Please fill in all required fields marked with *")
+                
+                if cancel_custom:
+                    st.session_state.show_custom_form = False
+                    st.rerun()
+        
+        # Regular property selection (only show if custom form is not displayed)
+        elif selected_display and st.button("🔍 Get Recommendations", type="primary"):
             selected_subject = subject_options[selected_display]
             
             with st.spinner("🔍 Analyzing property and generating recommendations..."):
