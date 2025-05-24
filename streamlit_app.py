@@ -128,85 +128,55 @@ class PropertyRecommendationApp:
     
     def auto_load_on_startup(self):
         """Automatically load model and data when app starts"""
-        with st.status("🚀 Initializing Property Recommendation System...", expanded=True) as status:
-            try:
-                st.write("📊 Loading property data...")
-                
-                # Load data first
-                data_path = "appraisals_dataset.json"
-                if not os.path.exists(data_path):
-                    st.session_state.loading_error = "❌ Property data file not found!"
-                    status.update(label="❌ Initialization Failed", state="error")
-                    return False
-                
-                # Load and process data - store in session state
-                subjects_df, comps_df, properties_df = load_and_process_data(data_path)
-                st.session_state.subjects_df = subjects_df
-                st.session_state.comps_df = comps_df
-                st.session_state.properties_df = deduplicate_properties(properties_df)
-                
-                # Ensure property IDs are strings
-                if 'id' in st.session_state.properties_df.columns:
-                    st.session_state.properties_df['id'] = st.session_state.properties_df['id'].astype(str)
-                
-                st.write(f"✅ Loaded {len(st.session_state.subjects_df)} subjects and {len(st.session_state.properties_df)} properties")
-                
-                st.write("🤖 Initializing AI model...")
-                
-                # Initialize model properly - store in session state
-                model_path = "data/models/recommendation_model.pkl"
-                
-                # Use initialize_model_from_data which returns a PropertyRecommendationModel
-                st.session_state.model = initialize_model_from_data(
-                    json_path=data_path,
-                    model_path=model_path
-                )
-                st.write("✅ Model initialized successfully!")
-                
-                # Verify model has required attributes
-                if hasattr(st.session_state.model, 'test_property_ids'):
-                    st.write(f"📋 Model has {len(st.session_state.model.test_property_ids)} test property IDs")
-                else:
-                    st.write("⚠️ Model missing test_property_ids attribute")
-                
-                st.write("🔍 Setting up explainability...")
-                
-                # Initialize explainer - store in session state
-                st.session_state.explainer = create_explainer_for_streamlit(st.session_state.model)
-                if st.session_state.explainer:
-                    st.write("✅ SHAP explainer initialized!")
-                else:
-                    st.write("⚠️ Could not initialize explainer")
-                
-                st.write("🎯 Initializing feedback learning system...")
-                
-                # Initialize feedback system - store in session state
-                st.session_state.feedback_system = initialize_feedback_system(
-                    model=st.session_state.model,
-                    feedback_db_path="data/feedback/feedback_database.json",
-                    training_data_path="data/processed/training_data.pkl",
-                    model_save_path="data/models/recommendation_model.pkl",
-                    retrain_threshold=5  # Lower threshold for demo purposes
-                )
-                if st.session_state.feedback_system:
-                    st.write("✅ Feedback learning system initialized!")
-                    # Load current feedback stats
-                    st.session_state.feedback_stats = st.session_state.feedback_system.get_feedback_stats()
-                else:
-                    st.write("⚠️ Could not initialize feedback system")
-                
-                st.session_state.model_loaded = True
-                st.session_state.data_loaded = True
-                st.session_state.loading_error = None
-                
-                status.update(label="✅ System Ready!", state="complete")
-                
-            except Exception as e:
-                error_msg = f"❌ Error during initialization: {str(e)}"
-                st.session_state.loading_error = error_msg
-                st.error(error_msg)
-                st.exception(e)
+        try:
+            # Load data first
+            data_path = "appraisals_dataset.json"
+            if not os.path.exists(data_path):
+                st.session_state.loading_error = "❌ Property data file not found!"
                 return False
+            
+            # Load and process data - store in session state
+            subjects_df, comps_df, properties_df = load_and_process_data(data_path)
+            st.session_state.subjects_df = subjects_df
+            st.session_state.comps_df = comps_df
+            st.session_state.properties_df = deduplicate_properties(properties_df)
+            
+            # Ensure property IDs are strings
+            if 'id' in st.session_state.properties_df.columns:
+                st.session_state.properties_df['id'] = st.session_state.properties_df['id'].astype(str)
+            
+            # Initialize model properly - store in session state
+            model_path = "data/models/recommendation_model.pkl"
+            
+            # Use initialize_model_from_data which returns a PropertyRecommendationModel
+            st.session_state.model = initialize_model_from_data(
+                json_path=data_path,
+                model_path=model_path
+            )
+            
+            # Initialize explainer - store in session state
+            st.session_state.explainer = create_explainer_for_streamlit(st.session_state.model)
+            
+            # Initialize feedback system - store in session state
+            st.session_state.feedback_system = initialize_feedback_system(
+                model=st.session_state.model,
+                feedback_db_path="data/feedback/feedback_database.json",
+                training_data_path="data/processed/training_data.pkl",
+                model_save_path="data/models/recommendation_model.pkl",
+                retrain_threshold=5  # Lower threshold for demo purposes
+            )
+            if st.session_state.feedback_system:
+                # Load current feedback stats
+                st.session_state.feedback_stats = st.session_state.feedback_system.get_feedback_stats()
+            
+            st.session_state.model_loaded = True
+            st.session_state.data_loaded = True
+            st.session_state.loading_error = None
+            
+        except Exception as e:
+            error_msg = f"❌ Error during initialization: {str(e)}"
+            st.session_state.loading_error = error_msg
+            return False
         return True
     
     def get_test_subjects(self, limit: int = 20):
@@ -228,7 +198,7 @@ class PropertyRecommendationApp:
             
             # Debug: Show model test property IDs info
             if hasattr(model, 'test_property_ids') and model.test_property_ids:
-                st.info(f"Model has {len(model.test_property_ids)} test property IDs")
+                st.write(f"Model has {len(model.test_property_ids)} test property IDs")
                 # Find matching test subjects
                 test_subjects = []
                 
@@ -239,12 +209,12 @@ class PropertyRecommendationApp:
                         test_subjects.append(order_id)
                 
                 if test_subjects:
-                    st.success(f"Found {len(test_subjects)} test subjects from model test IDs")
+                    st.write(f"Found {len(test_subjects)} test subjects from model test IDs")
                 else:
-                    st.warning("No test subjects found matching model test IDs. Using all subjects.")
+                    st.write("No test subjects found matching model test IDs. Using all subjects.")
                     test_subjects = subjects_df['order_id'].unique()[:limit]
             else:
-                st.warning("No test property IDs found in model. Using sample subjects.")
+                st.write("No test property IDs found in model. Using sample subjects.")
                 test_subjects = subjects_df['order_id'].unique()[:limit]
             
             # Get subject properties
@@ -258,7 +228,7 @@ class PropertyRecommendationApp:
                     formatted_prop['id'] = order_id  # Use order_id as id
                     subjects.append(formatted_prop)
             
-            st.success(f"Returning {len(subjects)} test subjects for selection")
+            st.write(f"Returning {len(subjects)} test subjects for selection")
             return subjects
             
         except Exception as e:
@@ -806,13 +776,13 @@ class PropertyRecommendationApp:
             
             # System status display
             if st.session_state.model_loaded:
-                st.success("✅ Model Ready")
-                st.success("✅ Data Loaded")
+                st.write("Model Ready")
+                st.write("Data Loaded")
                 
                 # Show system info
                 model = st.session_state.get('model')
                 if model and hasattr(model, 'test_property_ids'):
-                    st.info(f"📋 {len(model.test_property_ids)} test properties available")
+                    st.write(f"📋 {len(model.test_property_ids)} test properties available")
                 
                 # Manual reload option (advanced users)
                 with st.expander("🔧 Advanced Options"):
@@ -822,7 +792,7 @@ class PropertyRecommendationApp:
                         st.session_state.loading_error = None
                         st.rerun()
             else:
-                st.info("🚀 System is initializing...")
+                st.write("System is initializing...")
             
             st.markdown("---")
             st.markdown("### 📊 Features")
@@ -879,9 +849,9 @@ class PropertyRecommendationApp:
                     """)
                     st.warning("⚠️ Enhanced AI explanations require an OpenAI API key")
                 else:
-                    st.success("✅ OpenAI API Key entered!")
+                    st.write("✅ OpenAI API Key entered!")
             else:
-                st.success("✅ OpenAI API Key found in environment")
+                st.write("✅ OpenAI API Key found in environment")
             
             # Check OpenAI status
             current_openai_key = st.session_state.user_openai_key or env_openai_key
@@ -894,12 +864,12 @@ class PropertyRecommendationApp:
                 # Check if explainer has OpenAI client
                 explainer = st.session_state.get('explainer')
                 if explainer and hasattr(explainer, 'openai_client') and explainer.openai_client:
-                    st.success("✅ Enhanced Explanations Ready")
+                    st.write("✅ Enhanced Explanations Ready")
                 else:
-                    st.warning("⚠️ Explainer needs refresh - restart app if issues persist")
+                    st.write("⚠️ Explainer needs refresh - restart app if issues persist")
                     
             else:
-                st.error("❌ No OpenAI API Key")
+                st.write("❌ No OpenAI API Key")
                 st.caption("Enhanced AI explanations unavailable")
             
             # Feedback system status
@@ -907,7 +877,7 @@ class PropertyRecommendationApp:
             st.markdown("### 🎯 Self-Learning System")
             feedback_system = st.session_state.get('feedback_system')
             if feedback_system:
-                st.success("✅ Feedback Learning Active")
+                st.write("✅ Feedback Learning Active")
                 
                 # Show quick stats
                 feedback_stats = st.session_state.get('feedback_stats')
@@ -917,46 +887,13 @@ class PropertyRecommendationApp:
                     st.caption(f"📊 {total} feedback entries")
                     st.caption(f"👍 {approval_rate:.0f}% approval rate")
             else:
-                st.warning("⚠️ Feedback System Not Ready")
+                st.write("⚠️ Feedback System Not Ready")
         
         # Main content
         if not st.session_state.model_loaded:
-            # Show loading state or instructions
-            st.info("🚀 The system is initializing automatically. Please wait...")
-            
-            # Show OpenAI info while loading
-            with st.expander("🤖 About Enhanced AI Explanations (Optional)", expanded=False):
-                st.markdown("""
-                This app includes **enhanced AI explanations** powered by OpenAI that provide natural language 
-                descriptions of why properties were recommended.
-                
-                **To enable this feature:**
-                1. Get an OpenAI API key from [platform.openai.com](https://platform.openai.com/)
-                2. Enter it in the sidebar under "AI Features"
-                3. The app will generate human-readable explanations for each recommendation
-                
-                **The app works perfectly fine without OpenAI** - you'll still get:
-                - Property recommendations
-                - SHAP feature importance analysis  
-                - Feedback collection and model improvement
-                """)
-            
-            st.markdown("""
-            ### What This App Does:
-            
-            1. **🚀 Auto-Initialize**: System loads automatically when you open the app
-            2. **📋 Select Test Property**: Choose from real test properties from the appraisal dataset
-            3. **🔍 Get Recommendations**: AI analyzes and ranks similar properties
-            4. **💡 Explain Results**: SHAP analysis shows why each property was recommended
-            5. **🤖 Enhanced Explanations**: Natural language explanations (requires OpenAI API key)
-            6. **🎯 Identify True Comps**: Highlights properties that were actual comparables used by appraisers
-            7. **⭐ Provide Feedback**: Help improve the model by rating recommendations
-            8. **🚀 Self-Learning**: Model automatically improves based on your feedback
-            
-            **No manual setup required - everything loads automatically!**
-            
-            **Optional**: Add your OpenAI API key in the sidebar for enhanced AI explanations.
-            """)
+            # Show simple loading message
+            st.markdown("### 🏠 Property Recommendation System")
+            st.markdown("*Loading AI model and property data...*")
             return
         
         # Test property selection
@@ -1018,7 +955,6 @@ class PropertyRecommendationApp:
         
         # Footer
         st.markdown("---")
-        st.markdown("*Powered by XGBoost, SHAP, and Streamlit | Integrated with OpenAI for enhanced explanations*")
 
 # Run the application
 if __name__ == "__main__":
