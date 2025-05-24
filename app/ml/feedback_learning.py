@@ -196,23 +196,45 @@ class FeedbackLearningSystem:
         # Prepare feedback data for training
         feedback_data = self._prepare_feedback_data()
         
+        # Check if we have any feedback data to work with
+        if feedback_data['X'].empty and (self.original_training_data is None or self.original_training_data['X'].empty):
+            logger.warning("No training data available (neither feedback nor original)")
+            return {
+                'status': 'skipped',
+                'reason': 'No training data available',
+                'processed_feedback_count': 0
+            }
+        
         # If we have original training data, combine it with feedback data
-        if self.original_training_data is not None:
+        if self.original_training_data is not None and not self.original_training_data['X'].empty:
             X_combined = pd.concat([self.original_training_data['X'], feedback_data['X']], ignore_index=True)
             y_combined = pd.concat([self.original_training_data['y'], feedback_data['y']], ignore_index=True)
             
             # Group information for cross-validation
-            if 'groups' in self.original_training_data:
+            if 'groups' in self.original_training_data and not feedback_data['groups'].empty:
                 groups_combined = pd.concat([
                     self.original_training_data['groups'], 
                     feedback_data['groups']
                 ], ignore_index=True)
+            elif 'groups' in self.original_training_data:
+                groups_combined = self.original_training_data['groups']
+            elif not feedback_data['groups'].empty:
+                groups_combined = feedback_data['groups']
             else:
                 groups_combined = None
-        else:
+        elif not feedback_data['X'].empty:
+            # Only feedback data available
             X_combined = feedback_data['X']
             y_combined = feedback_data['y']
-            groups_combined = feedback_data.get('groups')
+            groups_combined = feedback_data['groups'] if not feedback_data['groups'].empty else None
+        else:
+            # This shouldn't happen due to the earlier check, but just in case
+            logger.error("No valid training data found")
+            return {
+                'status': 'failed',
+                'reason': 'No valid training data found',
+                'processed_feedback_count': 0
+            }
         
         # Retrain the model
         metrics = self.model.fit(X_combined, y_combined, groups=groups_combined)
@@ -308,7 +330,11 @@ class FeedbackLearningSystem:
         
         if df_combined.empty:
             logger.warning("No feedback data to process")
-            return {'X': pd.DataFrame(columns=FEATURES), 'y': pd.Series(dtype=int)}
+            return {
+                'X': pd.DataFrame(columns=FEATURES), 
+                'y': pd.Series(dtype=int),
+                'groups': pd.Series(dtype=str)  # Add empty groups series
+            }
         
         # Extract features, labels, and groups
         X = df_combined[FEATURES]
