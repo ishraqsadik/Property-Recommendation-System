@@ -829,6 +829,7 @@ class PropertyRecommendationApp:
             st.markdown("• Test property selection")
             st.markdown("• AI-powered recommendations") 
             st.markdown("• SHAP explainability")
+            st.markdown("• **Enhanced AI explanations** (requires OpenAI API)")
             st.markdown("• True comparables identification")
             st.markdown("• Feature importance analysis")
             st.markdown("• **Feedback collection**")
@@ -839,23 +840,67 @@ class PropertyRecommendationApp:
             st.markdown("---")
             st.markdown("### 🤖 AI Features")
             
+            # OpenAI API Key Input Section
+            st.markdown("#### OpenAI API Key Setup")
+            
+            # Check for environment variable first
+            env_openai_key = os.getenv("OPENAI_API_KEY")
+            
+            # Add session state for user-provided API key
+            if 'user_openai_key' not in st.session_state:
+                st.session_state.user_openai_key = ""
+            
+            # User input for API key
+            if not env_openai_key:
+                st.markdown("**Enter your OpenAI API Key for enhanced explanations:**")
+                user_key = st.text_input(
+                    "OpenAI API Key",
+                    type="password",
+                    value=st.session_state.user_openai_key,
+                    placeholder="sk-...",
+                    help="Your API key is stored securely in this session only"
+                )
+                
+                if user_key != st.session_state.user_openai_key:
+                    st.session_state.user_openai_key = user_key
+                    # Update the environment variable for this session
+                    if user_key:
+                        os.environ["OPENAI_API_KEY"] = user_key
+                        st.rerun()
+                
+                if not user_key:
+                    st.info("💡 **How to get an OpenAI API Key:**")
+                    st.markdown("""
+                    1. Go to [platform.openai.com](https://platform.openai.com/)
+                    2. Sign up or log in
+                    3. Navigate to API Keys section
+                    4. Create a new API key
+                    5. Copy and paste it above
+                    """)
+                    st.warning("⚠️ Enhanced AI explanations require an OpenAI API key")
+                else:
+                    st.success("✅ OpenAI API Key entered!")
+            else:
+                st.success("✅ OpenAI API Key found in environment")
+            
             # Check OpenAI status
-            openai_key = os.getenv("OPENAI_API_KEY")
-            if openai_key:
-                # Show partial key for confirmation
-                masked_key = f"{openai_key[:10]}...{openai_key[-10:]}" if len(openai_key) > 20 else "***"
-                st.success(f"✅ OpenAI API Key Found")
+            current_openai_key = st.session_state.user_openai_key or env_openai_key
+            if current_openai_key:
+                # Show partial key for confirmation (only if it looks valid)
+                if len(current_openai_key) > 20 and current_openai_key.startswith('sk-'):
+                    masked_key = f"{current_openai_key[:10]}...{current_openai_key[-4:]}"
+                    st.caption(f"🔑 Key: {masked_key}")
                 
                 # Check if explainer has OpenAI client
                 explainer = st.session_state.get('explainer')
                 if explainer and hasattr(explainer, 'openai_client') and explainer.openai_client:
                     st.success("✅ Enhanced Explanations Ready")
                 else:
-                    st.warning("⚠️ OpenAI Client Not Ready")
+                    st.warning("⚠️ Explainer needs refresh - restart app if issues persist")
                     
             else:
                 st.error("❌ No OpenAI API Key")
-                st.caption("Set OPENAI_API_KEY environment variable for enhanced explanations")
+                st.caption("Enhanced AI explanations unavailable")
             
             # Feedback system status
             st.markdown("---")
@@ -878,6 +923,24 @@ class PropertyRecommendationApp:
         if not st.session_state.model_loaded:
             # Show loading state or instructions
             st.info("🚀 The system is initializing automatically. Please wait...")
+            
+            # Show OpenAI info while loading
+            with st.expander("🤖 About Enhanced AI Explanations (Optional)", expanded=False):
+                st.markdown("""
+                This app includes **enhanced AI explanations** powered by OpenAI that provide natural language 
+                descriptions of why properties were recommended.
+                
+                **To enable this feature:**
+                1. Get an OpenAI API key from [platform.openai.com](https://platform.openai.com/)
+                2. Enter it in the sidebar under "AI Features"
+                3. The app will generate human-readable explanations for each recommendation
+                
+                **The app works perfectly fine without OpenAI** - you'll still get:
+                - Property recommendations
+                - SHAP feature importance analysis  
+                - Feedback collection and model improvement
+                """)
+            
             st.markdown("""
             ### What This App Does:
             
@@ -885,11 +948,14 @@ class PropertyRecommendationApp:
             2. **📋 Select Test Property**: Choose from real test properties from the appraisal dataset
             3. **🔍 Get Recommendations**: AI analyzes and ranks similar properties
             4. **💡 Explain Results**: SHAP analysis shows why each property was recommended
-            5. **🎯 Identify True Comps**: Highlights properties that were actual comparables used by appraisers
-            6. **⭐ Provide Feedback**: Help improve the model by rating recommendations
-            7. **🚀 Self-Learning**: Model automatically improves based on your feedback
+            5. **🤖 Enhanced Explanations**: Natural language explanations (requires OpenAI API key)
+            6. **🎯 Identify True Comps**: Highlights properties that were actual comparables used by appraisers
+            7. **⭐ Provide Feedback**: Help improve the model by rating recommendations
+            8. **🚀 Self-Learning**: Model automatically improves based on your feedback
             
             **No manual setup required - everything loads automatically!**
+            
+            **Optional**: Add your OpenAI API key in the sidebar for enhanced AI explanations.
             """)
             return
         
