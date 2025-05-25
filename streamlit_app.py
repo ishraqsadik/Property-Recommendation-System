@@ -5,7 +5,7 @@ st.set_page_config(
     page_title="Property Recommendation System",
     page_icon="🏠",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
 import pandas as pd
@@ -61,6 +61,28 @@ st.markdown("""
         font-size: 1.2em;
         font-weight: bold;
         color: #1f77b4;
+    }
+    
+    /* Hide sidebar completely */
+    .css-1d391kg {
+        display: none;
+    }
+    
+    /* Hide sidebar toggle button */
+    .css-1rs6os {
+        display: none;
+    }
+    
+    /* Hide sidebar collapse button */
+    .css-1lcbmhc {
+        display: none;
+    }
+    
+    /* Ensure main content takes full width */
+    .block-container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+        max-width: none;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -744,6 +766,14 @@ class PropertyRecommendationApp:
         st.title("🏠 Property Recommendation System")
         st.markdown("AI-powered property recommendations with explainable insights")
         
+        # Quick OpenAI status check (collapsed by default)
+        env_openai_key = os.getenv("OPENAI_API_KEY")
+        if env_openai_key:
+            st.success("🤖 Enhanced AI explanations are enabled")
+        else:
+            with st.expander("ℹ️ Optional: Enhanced AI explanations available with OpenAI API key"):
+                st.info("Enhanced explanations are available if you configure an OpenAI API key in your Streamlit secrets.")
+        
         # Check if there was a loading error
         if st.session_state.loading_error:
             st.error(st.session_state.loading_error)
@@ -759,102 +789,6 @@ class PropertyRecommendationApp:
                 st.session_state.loading_error = None
                 st.rerun()
             return
-        
-        # Sidebar
-        with st.sidebar:
-            st.header("⚙️ System Status")
-            
-            # System status display
-            if st.session_state.model_loaded:
-                # Manual reload option (advanced users)
-                with st.expander("🔧 Advanced Options"):
-                    if st.button("🔄 Reload System"):
-                        st.session_state.model_loaded = False
-                        st.session_state.data_loaded = False
-                        st.session_state.loading_error = None
-                        st.rerun()
-            else:
-                st.write("System is initializing...")
-            
-            st.markdown("---")
-            st.markdown("### 📊 Features")
-            st.markdown("• Test property selection")
-            st.markdown("• AI-powered recommendations") 
-            st.markdown("• SHAP explainability")
-            st.markdown("• **Enhanced AI explanations** (requires OpenAI API)")
-            st.markdown("• True comparables identification")
-            st.markdown("• Feature importance analysis")
-            st.markdown("• **Feedback collection**")
-            st.markdown("• **Self-improving model**")
-            st.markdown("• **Automatic retraining**")
-            
-            # OpenAI status
-            st.markdown("---")
-            st.markdown("### 🤖 AI Features")
-            
-            # OpenAI API Key Input Section
-            st.markdown("#### OpenAI API Key Setup")
-            
-            # Check for environment variable first
-            env_openai_key = os.getenv("OPENAI_API_KEY")
-            
-            # Add session state for user-provided API key
-            if 'user_openai_key' not in st.session_state:
-                st.session_state.user_openai_key = ""
-            
-            # User input for API key
-            if not env_openai_key:
-                st.markdown("**Enter your OpenAI API Key for enhanced explanations:**")
-                user_key = st.text_input(
-                    "OpenAI API Key",
-                    type="password",
-                    value=st.session_state.user_openai_key,
-                    placeholder="sk-...",
-                    help="Your API key is stored securely in this session only"
-                )
-                
-                if user_key != st.session_state.user_openai_key:
-                    st.session_state.user_openai_key = user_key
-                    # Update the environment variable for this session
-                    if user_key:
-                        os.environ["OPENAI_API_KEY"] = user_key
-                        st.rerun()
-                
-                if not user_key:
-                    st.info("💡 **How to get an OpenAI API Key:**")
-                    st.markdown("""
-                    1. Go to [platform.openai.com](https://platform.openai.com/)
-                    2. Sign up or log in
-                    3. Navigate to API Keys section
-                    4. Create a new API key
-                    5. Copy and paste it above
-                    """)
-                    st.warning("⚠️ Enhanced AI explanations require an OpenAI API key")
-                else:
-                    st.success("✅ OpenAI API Key entered!")
-            else:
-                st.success("✅ OpenAI API Key found in environment")
-            
-            # Check OpenAI status
-            current_openai_key = st.session_state.user_openai_key or env_openai_key
-            if current_openai_key:
-                # Show partial key for confirmation (only if it looks valid)
-                if len(current_openai_key) > 20 and current_openai_key.startswith('sk-'):
-                    masked_key = f"{current_openai_key[:10]}...{current_openai_key[-4:]}"
-                    st.caption(f"🔑 Key: {masked_key}")
-            
-            # Feedback system status
-            st.markdown("---")
-            st.markdown("### 🎯 Self-Learning System")
-            feedback_system = st.session_state.get('feedback_system')
-            if feedback_system:
-                # Show quick stats
-                feedback_stats = st.session_state.get('feedback_stats')
-                if feedback_stats:
-                    total = feedback_stats.get('total_count', 0)
-                    approval_rate = feedback_stats.get('approval_rate', 0) * 100
-                    st.caption(f"📊 {total} feedback entries")
-                    st.caption(f"👍 {approval_rate:.0f}% approval rate")
         
         # Main content
         if not st.session_state.model_loaded:
