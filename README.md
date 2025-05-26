@@ -5,7 +5,8 @@
 An intelligent property recommendation system designed for real estate appraisers, featuring self-learning capabilities through user feedback and comprehensive AI explainability.
 
 **🚀 Try the Live App: [https://compfinder.streamlit.app/](https://compfinder.streamlit.app/)**
-**Here is a Demo Video: https://youtu.be/M_uPKpvf918**
+
+Here is a Demo Video explaining the project: https://youtu.be/M_uPKpvf918
 
 ## ✨ Key Features
 
