@@ -141,11 +141,6 @@ property-recommendation-system/
 
 For enhanced AI explanations, you can provide your OpenAI API key:
 
-**In the Deployed App:**
-- Visit [https://compfinder.streamlit.app/](https://compfinder.streamlit.app/)
-- Look for "OpenAI API Key Setup" in the sidebar
-- Enter your API key securely (stored only in your session)
-
 **For Local Development:**
 
 ```bash
