@@ -55,7 +55,7 @@ class FeedbackLearningSystem:
                 logger.error(f"Error loading training data: {e}")
     
     def _load_feedback_db(self) -> Dict:
-        """
+        """ 
         Load feedback database from disk
         
         Returns:
@@ -68,7 +68,7 @@ class FeedbackLearningSystem:
             except Exception as e:
                 logger.error(f"Error loading feedback database: {e}")
         
-        # Create new feedback database if it doesn't exist
+        # Create new feedback database if it doesn't
         feedback_db = {
             'feedbacks': [],
             'metadata': {
