@@ -54,7 +54,7 @@ class PropertyExplainer:
                     self.explainer = shap.TreeExplainer(xgb_model)
                     if self.preprocessor and hasattr(self.preprocessor, 'get_feature_names_out'):
                         self.feature_names = self.preprocessor.get_feature_names_out()
-                    print("✅ SHAP explainer initialized successfully for PropertyRecommendationModel")
+                    print("[OK] SHAP explainer initialized successfully for PropertyRecommendationModel")
                 else:
                     raise ValueError("Could not find XGBoost model in PropertyRecommendationModel pipeline")
             
@@ -67,20 +67,20 @@ class PropertyExplainer:
                     self.explainer = shap.TreeExplainer(xgb_model)
                     if self.preprocessor and hasattr(self.preprocessor, 'get_feature_names_out'):
                         self.feature_names = self.preprocessor.get_feature_names_out()
-                    print("✅ SHAP explainer initialized successfully for sklearn Pipeline")
+                    print("[OK] SHAP explainer initialized successfully for sklearn Pipeline")
                 else:
                     raise ValueError("Could not find XGBoost model in pipeline")
             
             elif hasattr(self.model, 'predict_proba'):
                 # This might be a direct XGBoost model
                 self.explainer = shap.TreeExplainer(self.model)
-                print("✅ SHAP explainer initialized successfully for direct model")
+                print("[OK] SHAP explainer initialized successfully for direct model")
             
             else:
                 raise ValueError(f"Unsupported model type: {type(self.model)}. Expected PropertyRecommendationModel, sklearn Pipeline, or XGBoost model.")
             
         except Exception as e:
-            print(f"❌ Error initializing SHAP explainer: {str(e)}")
+            print(f"[ERROR] Error initializing SHAP explainer: {str(e)}")
             print(f"Model type: {type(self.model)}")
             if hasattr(self.model, '__dict__'):
                 print(f"Model attributes: {list(self.model.__dict__.keys())}")
@@ -89,19 +89,19 @@ class PropertyExplainer:
     def _initialize_openai(self):
         """Initialize OpenAI client if API key is available"""
         if not OPENAI_AVAILABLE:
-            print("❌ OpenAI package not installed. Enhanced explanations unavailable.")
+            print("[WARNING] OpenAI package not installed. Enhanced explanations unavailable.")
             return
             
         api_key = os.getenv("OPENAI_API_KEY")
         if api_key:
             try:
                 self.openai_client = OpenAI(api_key=api_key)
-                print("✅ OpenAI client initialized successfully - Enhanced explanations ready!")
+                print("[OK] OpenAI client initialized successfully - Enhanced explanations ready!")
             except Exception as e:
-                print(f"❌ Error initializing OpenAI client: {str(e)}")
+                print(f"[ERROR] Error initializing OpenAI client: {str(e)}")
                 self.openai_client = None
         else:
-            print("❌ No OpenAI API key found. Enhanced explanations unavailable.")
+            print("[WARNING] No OpenAI API key found. Enhanced explanations unavailable.")
     
     def explain_property_recommendation(self, 
                                         property_data: pd.DataFrame, 
